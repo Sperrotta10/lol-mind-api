@@ -52,6 +52,19 @@ export interface MatchupBuildResponse {
 	};
 }
 
+export interface StyleBuildResponse {
+	coreItems: string[];
+	situationalItems: string[];
+	runes: {
+		primaryTree: string;
+		primaryChoices: string[];
+		secondaryTree: string;
+		secondaryChoices: string[];
+		shards: string[];
+	};
+	playstyleExplanation: string;
+}
+
 export interface BuildContext {
 	allyChampion: ChampionContext;
 	enemyChampion: ChampionContext;

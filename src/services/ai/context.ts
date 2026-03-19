@@ -5,6 +5,12 @@ import type { ChampionContext, ItemContext, RuneContext } from "./types.js";
 const isObject = (value: unknown): value is Record<string, unknown> =>
 	typeof value === "object" && value !== null;
 
+interface ItemContextOptions {
+	minGoldTotal?: number;
+	maxItems?: number;
+	excludeBootsAndConsumables?: boolean;
+}
+
 const sanitizeText = (value: string): string => value.trim();
 
 export const findChampionByName = async (championName: string): Promise<ChampionContext | null> => {
@@ -64,7 +70,13 @@ const parseGoldTotal = (gold: unknown): number | null => {
 	return null;
 };
 
-export const getItemContext = async (): Promise<ItemContext[]> => {
+export const getItemContext = async (options: ItemContextOptions = {}): Promise<ItemContext[]> => {
+	const {
+		minGoldTotal = 2200,
+		maxItems = MAX_ITEMS_FOR_CONTEXT,
+		excludeBootsAndConsumables = true,
+	} = options;
+
 	const items = await prisma.item.findMany({
 		select: {
 			id: true,
@@ -83,11 +95,11 @@ export const getItemContext = async (): Promise<ItemContext[]> => {
 			tags: item.tags,
 			goldTotal: parseGoldTotal(item.gold),
 		}))
-		.filter((item) => !isBootOrConsumable(item.tags))
-		.filter((item) => (item.goldTotal ?? 0) >= 2200)
+		.filter((item) => (excludeBootsAndConsumables ? !isBootOrConsumable(item.tags) : true))
+		.filter((item) => (item.goldTotal ?? 0) >= minGoldTotal)
 		.sort((a, b) => (b.goldTotal ?? 0) - (a.goldTotal ?? 0));
 
-	return filteredItems.slice(0, MAX_ITEMS_FOR_CONTEXT);
+	return filteredItems.slice(0, maxItems);
 };
 
 export const getRuneContext = async (): Promise<RuneContext[]> => {

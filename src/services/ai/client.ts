@@ -3,15 +3,31 @@ import { DEFAULT_MODEL } from "./constants.js";
 import { AIServiceError } from "./errors.js";
 import { buildResponseSchema } from "./prompt.js";
 
-export const generateGeminiJson = async (apiKey: string, prompt: string): Promise<string> => {
+interface GenerateGeminiJsonOptions {
+	responseSchema: unknown;
+	temperature?: number;
+	model?: string;
+}
+
+export const generateGeminiJsonWithSchema = async (
+	apiKey: string,
+	prompt: string,
+	options: GenerateGeminiJsonOptions,
+): Promise<string> => {
+	const {
+		responseSchema,
+		temperature = 0.3,
+		model = DEFAULT_MODEL,
+	} = options;
+
 	const client = new GoogleGenAI({ apiKey });
 	const response = await client.models.generateContent({
-		model: DEFAULT_MODEL,
+		model,
 		contents: prompt,
 		config: {
-			temperature: 0.3,
+			temperature,
 			responseMimeType: "application/json",
-			responseSchema: buildResponseSchema(),
+			responseSchema,
 		},
 	});
 
@@ -22,3 +38,8 @@ export const generateGeminiJson = async (apiKey: string, prompt: string): Promis
 
 	return rawText;
 };
+
+export const generateGeminiJson = async (apiKey: string, prompt: string): Promise<string> =>
+	generateGeminiJsonWithSchema(apiKey, prompt, {
+		responseSchema: buildResponseSchema(),
+	});
