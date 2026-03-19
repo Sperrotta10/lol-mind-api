@@ -6,7 +6,7 @@ import express, {
 	type Request,
 	type Response,
 } from "express";
-import riotRouter from "./routes/riotRoutes.js";
+import { router } from "./routes/index.js";
 
 interface ErrorWithStatus extends Error {
 	statusCode?: number;
@@ -47,7 +47,7 @@ app.use((req, res, next) => {
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "1mb" }));
-app.use("/api/riot", riotRouter);
+app.use("/api", router);
 app.get("/health", (_req: Request, res: Response) => {
 	res.status(200).json({
 		success: true,
