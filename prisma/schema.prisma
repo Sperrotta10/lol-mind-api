@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider        = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==========================================
+// 1. CONTROL DE VERSIONES (El cerebro del Cron)
+// ==========================================
+model GameVersion {
+  id        Int      @id @default(autoincrement())
+  version   String   @unique // Ejemplo: "14.8.1"
+  isCurrent Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// 2. CAMPEONES
+// ==========================================
+model Champion {
+  id          String   @id // El ID de texto de Riot (Ej: "XinZhao", "Garen")
+  key         Int      @unique // El ID numérico interno (Ej: 5, 86)
+  name        String   // "Xin Zhao"
+  title       String   // "El Senescal de Demacia"
+  tags        String[] // ["Fighter", "Assassin"] -> Postgres soporta arreglos nativos
+  stats       Json     // JSONB con toda la data matemática (vida, armadura, etc.)
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// 3. ÍTEMS
+// ==========================================
+model Item {
+  id          String   @id // El número de ítem de Riot como texto (Ej: "3026")
+  name        String   // "Ángel Guardián"
+  description String   // La descripción detallada (OJO: Riot la envía con etiquetas HTML)
+  plaintext   String?  // Un resumen muy corto ("Revive al recibir daño letal")
+  gold        Json     // JSONB con { base, total, sell, purchasable }
+  stats       Json?    // JSONB con los stats crudos del ítem
+  tags        String[] // ["Armor", "Damage"] -> Vital para filtrar rápido
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// 4. RUNAS (Runes Reforged)
+// ==========================================
+model Rune {
+  id          Int      @id // El ID numérico de Riot (Ej: 8010 para Conquistador)
+  key         String   @unique // Nombre interno sin espacios (Ej: "Conqueror")
+  name        String   // Nombre público (Ej: "Conquistador")
+  shortDesc   String   // Descripción resumida (OJO: También trae etiquetas HTML)
+  longDesc    String   // Descripción detallada con las matemáticas exactas
+  tree        String   // La rama a la que pertenece (Ej: "Precision", "Domination")
+  slot        Int      // 0 = Piedra Angular (Keystone), 1, 2 o 3 = Runas menores
+  updatedAt   DateTime @updatedAt
+}
