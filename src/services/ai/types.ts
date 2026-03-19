@@ -65,6 +65,21 @@ export interface StyleBuildResponse {
 	playstyleExplanation: string;
 }
 
+export interface TeamCompAnalysisResponse {
+	composition: {
+		myTeamDamageProfile: string;
+		enemyTeamDamageProfile: string;
+		ccAdvantage: string;
+		globalWinCondition: string;
+	};
+	recommendedBuild: {
+		coreItems: string[];
+		situationalItems: string[];
+		boots: string;
+	};
+	explanation: string;
+}
+
 export interface BuildContext {
 	allyChampion: ChampionContext;
 	enemyChampion: ChampionContext;
