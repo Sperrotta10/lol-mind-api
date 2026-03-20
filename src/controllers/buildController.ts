@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { generateStyleBuild } from "../services/aiService.js";
+import { generateBaseBuild, generateStyleBuild } from "../services/aiService.js";
 
 interface StyleBuildRequestBody {
 	champion?: string;
@@ -49,6 +49,58 @@ export const getStyleBuild = async (
 			success: false,
 			error: {
 				code: "STYLE_BUILD_FAILED",
+				message,
+			},
+			meta: {
+				requestId: res.locals.requestId,
+			},
+		});
+	}
+};
+
+export const getBaseBuild = async (
+	req: Request<{ champion: string }>,
+	res: Response,
+): Promise<void> => {
+	try {
+		const champion = req.params.champion;
+
+		if (!champion || !champion.trim()) {
+			res.status(400).json({
+				success: false,
+				error: {
+					code: "INVALID_BASE_BUILD_INPUT",
+					message: "Debes enviar champion en los params",
+				},
+				meta: {
+					requestId: res.locals.requestId,
+				},
+			});
+			return;
+		}
+
+		const result = await generateBaseBuild(champion);
+
+		res.status(200).json({
+			success: true,
+			data: result,
+			meta: {
+				requestId: res.locals.requestId,
+			},
+		});
+	} catch (error: unknown) {
+		console.error("[buildController.getBaseBuild] Error generando build base", {
+			requestId: res.locals.requestId,
+			error,
+			stack: error instanceof Error ? error.stack : undefined,
+		});
+
+		const message = error instanceof Error ? error.message : "Error inesperado al generar build base";
+
+		res.status(500).json({
+			success: false,
+			error: {
+				code: "BASE_BUILD_FAILED",
 				message,
 			},
 			meta: {

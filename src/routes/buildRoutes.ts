@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getStyleBuild } from "../controllers/buildController.js";
+import { getBaseBuild, getStyleBuild } from "../controllers/buildController.js";
 
 const buildRoutes = Router();
 
@@ -59,5 +59,27 @@ const buildRoutes = Router();
  *         description: Error interno al generar la build
  */
 buildRoutes.post("/style", getStyleBuild);
+
+/**
+ * @openapi
+ * /api/builds/base/{champion}:
+ *   get:
+ *     summary: Genera build base (meta estandar) para un campeon
+ *     tags: [Builds]
+ *     parameters:
+ *       - in: path
+ *         name: champion
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Build base generada correctamente
+ *       400:
+ *         description: Parametro champion invalido
+ *       500:
+ *         description: Error interno al generar la build base
+ */
+buildRoutes.get("/base/:champion", getBaseBuild);
 
 export default buildRoutes;
