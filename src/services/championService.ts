@@ -14,7 +14,7 @@ interface ChampionFilters {
 	tag?: string | string[];
 }
 
-const D_DRAGON_IMAGE_BASE_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/loading";
+const D_DRAGON_IMAGE_BASE_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion";
 const D_DRAGON_SQUARE_IMAGE_BASE_URL = "https://ddragon.leagueoflegends.com/cdn";
 
 const normalizeTag = (value: string): string => {
@@ -46,7 +46,7 @@ const parseSearchQuery = (value: string | string[] | undefined): string | undefi
 };
 
 const buildChampionImageUrl = (championId: string): string =>
-	`${D_DRAGON_IMAGE_BASE_URL}/${championId}_0.jpg`;
+	`${D_DRAGON_IMAGE_BASE_URL}/loading/${championId}_0.jpg`;
 
 async function buildChampionAvatarImageUrl(championId: string): Promise<string> {
 
@@ -59,6 +59,10 @@ async function buildChampionAvatarImageUrl(championId: string): Promise<string> 
 
 	return `${D_DRAGON_SQUARE_IMAGE_BASE_URL}/${currentDbVersion}/img/champion/${championId}.png`;
 };
+
+const buildChampionSplashImageUrl = (championId: string): string =>
+	`${D_DRAGON_IMAGE_BASE_URL}/splash/${championId}_0.jpg`;
+
 
 export const listChampions = async (filters: ChampionFilters = {}): Promise<ChampionListItem[]> => {
 	const search = parseSearchQuery(filters.search);
@@ -100,6 +104,7 @@ export const listChampions = async (filters: ChampionFilters = {}): Promise<Cham
 		champions.map(async (champion) => {
 			const image = buildChampionImageUrl(champion.id);
 			const avatar = await buildChampionAvatarImageUrl(champion.id);
+			const splash = buildChampionSplashImageUrl(champion.id);
 
 			return {
 				id: champion.id,
@@ -108,6 +113,7 @@ export const listChampions = async (filters: ChampionFilters = {}): Promise<Cham
 				tags: champion.tags,
 				image,
 				avatar,
+				splash,
 			};
 		})
 	);
