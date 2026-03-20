@@ -126,10 +126,10 @@ Ejemplo:
 curl "http://localhost:3000/api/champions?search=ahri&tag=Mage"
 ```
 
-### Matchup
+### Builds
 
-- `POST /api/matchup`
-  - Descripcion: analiza un enfrentamiento 1v1 y devuelve recomendacion.
+- `POST /api/builds/matchup`
+  - Descripcion: analiza un enfrentamiento 1v1 y devuelve recomendacion de build.
   - Body:
 
 ```json
@@ -139,7 +139,17 @@ curl "http://localhost:3000/api/champions?search=ahri&tag=Mage"
 }
 ```
 
-### Builds
+- `POST /api/builds/team-analysis`
+  - Descripcion: analiza composicion 5v5 y recomienda build para tu campeon.
+  - Body:
+
+```json
+{
+  "myTeam": ["Garen", "LeeSin", "Ahri", "Jinx", "Leona"],
+  "enemyTeam": ["Darius", "Viego", "Zed", "KaiSa", "Nautilus"],
+  "myChampion": "Ahri"
+}
+```
 
 - `POST /api/builds/style`
   - Descripcion: genera build theorycrafting por estilo.
@@ -159,20 +169,6 @@ Ejemplo:
 
 ```bash
 curl "http://localhost:3000/api/builds/base/Garen"
-```
-
-### Team analysis
-
-- `POST /api/team-analysis`
-  - Descripcion: analiza composicion 5v5 y recomienda build para tu campeon.
-  - Body:
-
-```json
-{
-  "myTeam": ["Garen", "LeeSin", "Ahri", "Jinx", "Leona"],
-  "enemyTeam": ["Darius", "Viego", "Zed", "KaiSa", "Nautilus"],
-  "myChampion": "Ahri"
-}
 ```
 
 ## Flujo recomendado despues de instalar
