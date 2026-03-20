@@ -14,7 +14,8 @@ interface ChampionFilters {
 	tag?: string | string[];
 }
 
-const D_DRAGON_IMAGE_BASE_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion";
+const D_DRAGON_IMAGE_BASE_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/loading";
+const D_DRAGON_SQUARE_IMAGE_BASE_URL = "https://ddragon.leagueoflegends.com/cdn";
 
 const normalizeTag = (value: string): string => {
 	const normalized = value.trim().toLowerCase();
@@ -46,6 +47,18 @@ const parseSearchQuery = (value: string | string[] | undefined): string | undefi
 
 const buildChampionImageUrl = (championId: string): string =>
 	`${D_DRAGON_IMAGE_BASE_URL}/${championId}.png`;
+
+async function buildChampionAvatarImageUrl(championId: string): Promise<string> {
+
+	const currentVersionRecord = await prisma.gameVersion.findFirst({
+			where: { isCurrent: true },
+			orderBy: { createdAt: "desc" },
+	});
+
+	const currentDbVersion = currentVersionRecord?.version;
+
+	return `${D_DRAGON_SQUARE_IMAGE_BASE_URL}/${currentDbVersion}/img/champion/${championId}.png`;
+};
 
 export const listChampions = async (filters: ChampionFilters = {}): Promise<ChampionListItem[]> => {
 	const search = parseSearchQuery(filters.search);
@@ -83,16 +96,19 @@ export const listChampions = async (filters: ChampionFilters = {}): Promise<Cham
 		},
 	});
 
-	return champions.map((champion) => {
-		const image = buildChampionImageUrl(champion.id);
+	return await Promise.all(
+		champions.map(async (champion) => {
+			const image = buildChampionImageUrl(champion.id);
+			const avatar = await buildChampionAvatarImageUrl(champion.id);
 
-		return {
-			id: champion.id,
-			name: champion.name,
-			title: champion.title,
-			tags: champion.tags,
-			image,
-			avatar: image,
-		};
-	});
+			return {
+				id: champion.id,
+				name: champion.name,
+				title: champion.title,
+				tags: champion.tags,
+				image,
+				avatar,
+			};
+		})
+	);
 };
