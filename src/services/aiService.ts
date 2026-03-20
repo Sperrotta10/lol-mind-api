@@ -7,28 +7,28 @@ import {
 	buildSystemPrompt,
 	buildUserPrompt,
 	composePrompt,
-} from "./ai/prompt.js";
+} from "./ai/matchupPrompt.js";
 import {
 	buildBaseContextBlock,
 	buildBaseResponseSchema,
 	buildBaseSystemPrompt,
 	buildBaseUserPrompt,
 	parseBaseBuildResponse,
-} from "./ai/base.js";
+} from "./ai/buildBasePrompt.js";
 import {
 	buildStyleContextBlock,
 	buildStyleResponseSchema,
 	buildStyleSystemPrompt,
 	buildStyleUserPrompt,
 	parseStyleBuildResponse,
-} from "./ai/style.js";
+} from "./ai/styleBuildPrompt.js";
 import {
 	buildTeamCompContextBlock,
 	buildTeamCompResponseSchema,
 	buildTeamCompSystemPrompt,
 	buildTeamCompUserPrompt,
 	parseTeamCompResponse,
-} from "./ai/teamComp.js";
+} from "./ai/teamCompositionPrompt.js";
 import type {
 	ChampionContext,
 	BaseBuildResponse,
