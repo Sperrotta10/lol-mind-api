@@ -46,7 +46,7 @@ const parseSearchQuery = (value: string | string[] | undefined): string | undefi
 };
 
 const buildChampionImageUrl = (championId: string): string =>
-	`${D_DRAGON_IMAGE_BASE_URL}/${championId}.png`;
+	`${D_DRAGON_IMAGE_BASE_URL}/${championId}_0.jpg`;
 
 async function buildChampionAvatarImageUrl(championId: string): Promise<string> {
 
