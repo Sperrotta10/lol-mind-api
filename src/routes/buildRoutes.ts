@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getBaseBuild, getStyleBuild } from "../controllers/buildController.js";
+import { analyzeMatchupBuild, analyzeTeamBuild, getBaseBuild, getStyleBuild } from "../controllers/buildController.js";
 
 const buildRoutes = Router();
 
@@ -59,6 +59,74 @@ const buildRoutes = Router();
  *         description: Error interno al generar la build
  */
 buildRoutes.post("/style", getStyleBuild);
+
+/**
+ * @openapi
+ * /api/builds/matchup:
+ *   post:
+ *     summary: Analiza un 1v1 y genera recomendaciones de build
+ *     tags: [Builds]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [champion, enemy]
+ *             properties:
+ *               champion:
+ *                 type: string
+ *                 example: "Ahri"
+ *               enemy:
+ *                 type: string
+ *                 example: "Zed"
+ *     responses:
+ *       200:
+ *         description: Analisis generado correctamente
+ *       400:
+ *         description: Body invalido
+ *       500:
+ *         description: Error interno durante el analisis
+ */
+buildRoutes.post("/matchup", analyzeMatchupBuild);
+
+/**
+ * @openapi
+ * /api/builds/team-analysis:
+ *   post:
+ *     summary: Analiza composicion 5v5 y recomienda build para myChampion
+ *     tags: [Builds]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [myTeam, enemyTeam, myChampion]
+ *             properties:
+ *               myTeam:
+ *                 type: array
+ *                 minItems: 5
+ *                 maxItems: 5
+ *                 items:
+ *                   type: string
+ *               enemyTeam:
+ *                 type: array
+ *                 minItems: 5
+ *                 maxItems: 5
+ *                 items:
+ *                   type: string
+ *               myChampion:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Analisis de composicion generado correctamente
+ *       400:
+ *         description: Body invalido
+ *       500:
+ *         description: Error interno durante el analisis
+ */
+buildRoutes.post("/team-analysis", analyzeTeamBuild);
 
 /**
  * @openapi
