@@ -12,6 +12,6 @@ jobs:
     steps:
       - name: Llamar al Endpoint Secreto
         run: |
-          curl -X POST https://TU_URL_DE_RENDER.onrender.com/api/admin/cron-sync \
+          curl -X POST ${{ secrets.RENDER_URL }} \
           -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
           --max-time 300
