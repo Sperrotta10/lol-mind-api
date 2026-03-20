@@ -80,6 +80,19 @@ export interface TeamCompAnalysisResponse {
 	explanation: string;
 }
 
+export interface BaseBuildResponse {
+	coreItems: string[];
+	situationalItems: string[];
+	boots: string;
+	runes: {
+		primaryTree: string;
+		primaryChoices: string[];
+		secondaryTree: string;
+		secondaryChoices: string[];
+		shards: string[];
+	};
+}
+
 export interface BuildContext {
 	allyChampion: ChampionContext;
 	enemyChampion: ChampionContext;

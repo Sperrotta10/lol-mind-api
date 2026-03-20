@@ -9,6 +9,13 @@ import {
 	composePrompt,
 } from "./ai/prompt.js";
 import {
+	buildBaseContextBlock,
+	buildBaseResponseSchema,
+	buildBaseSystemPrompt,
+	buildBaseUserPrompt,
+	parseBaseBuildResponse,
+} from "./ai/base.js";
+import {
 	buildStyleContextBlock,
 	buildStyleResponseSchema,
 	buildStyleSystemPrompt,
@@ -24,13 +31,14 @@ import {
 } from "./ai/teamComp.js";
 import type {
 	ChampionContext,
+	BaseBuildResponse,
 	MatchupBuildResponse,
 	StyleBuildResponse,
 	TeamCompAnalysisResponse,
 } from "./ai/types.js";
 import { env } from "../config/env.js";
 export { AIServiceError };
-export type { MatchupBuildResponse, StyleBuildResponse, TeamCompAnalysisResponse };
+export type { BaseBuildResponse, MatchupBuildResponse, StyleBuildResponse, TeamCompAnalysisResponse };
 
 const findChampionsByNames = async (championNames: string[]): Promise<ChampionContext[]> => {
 	const champions = await Promise.all(championNames.map((championName) => findChampionByName(championName)));
@@ -141,6 +149,47 @@ export const generateStyleBuild = async (
 	});
 
 	return parseStyleBuildResponse(rawText);
+};
+
+export const generateBaseBuild = async (championName: string): Promise<BaseBuildResponse> => {
+	if (!env.GEMINI_API_KEY) {
+		throw new AIServiceError("AI_MISSING_API_KEY", "Falta GEMINI_API_KEY en variables de entorno");
+	}
+
+	if (!championName.trim()) {
+		throw new AIServiceError("AI_INVALID_INPUT", "championName es obligatorio");
+	}
+
+	const [champion, itemPool, runePool, bootsPool] = await Promise.all([
+		findChampionByName(championName),
+		getItemContext({ minGoldTotal: 1500, maxItems: 90, excludeBootsAndConsumables: true }),
+		getRuneContext(),
+		getItemContext({ minGoldTotal: 900, maxItems: 30, excludeBootsAndConsumables: false }),
+	]);
+
+	if (!champion) {
+		throw new AIServiceError("AI_CHAMPION_NOT_FOUND", "No se encontro el campeon en la base de datos", {
+			championName,
+		});
+	}
+
+	const bootPool = bootsPool.filter((item) => item.tags.includes("Boots"));
+
+	const systemPrompt = buildBaseSystemPrompt();
+	const contextBlock = buildBaseContextBlock({
+		champion,
+		itemPool,
+		bootPool,
+		runePool,
+	});
+	const userPrompt = buildBaseUserPrompt(champion.name);
+
+	const composedPrompt = composePrompt({ systemPrompt, contextBlock, userPrompt });
+	const rawText = await generateGeminiJsonWithSchema(env.GEMINI_API_KEY, composedPrompt, {
+		responseSchema: buildBaseResponseSchema(),
+	});
+
+	return parseBaseBuildResponse(rawText);
 };
 
 export const analyzeTeamComp = async (
