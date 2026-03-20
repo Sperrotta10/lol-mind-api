@@ -1,68 +1,185 @@
 <div align="center">
-  <h1>🧠 LOL-Mind-Api</h1>
-  <p><i>Tu coach personal para la Grieta del Invocador impulsado por Inteligencia Artificial</i></p>
+  <h1>LOL-Mind-Api</h1>
+  <p><i>Tu coach personal para la Grieta del Invocador impulsado por IA + RAG</i></p>
 </div>
 
-## 📖 Sobre el Proyecto
+## Sobre el proyecto
 
-**LOL-Mind-Api** es una herramienta analítica y de asistencia para jugadores de League of Legends. A diferencia de las páginas de estadísticas tradicionales, este proyecto utiliza la **API de Gemini (IA)** y técnicas de **RAG (Generación Aumentada por Recuperación)** para analizar la composición completa de los equipos y sugerir ítems, runas y estrategias adaptadas al contexto específico de cada partida.
+LOL-Mind-Api es una API backend para analisis de League of Legends. Usa Gemini para recomendaciones contextuales y RAG para asegurar que las respuestas esten alineadas a datos reales de Riot Data Dragon (items, runas, campeones y version activa).
 
-El sistema se mantiene actualizado automáticamente consumiendo los datos oficiales de **Riot Data Dragon**, y forma parte de un ecosistema moderno construido con React, Node.js, TypeScript y PostgreSQL.
+## Caracteristicas principales
 
-## ✨ Características Principales
+- Analisis contextual de matchup 1v1.
+- Analisis de composicion 5v5 con recomendaciones para tu campeon.
+- Builds base y builds por estilo.
+- Sincronizacion manual y automatica de datos de Riot.
+- Documentacion OpenAPI 3.0 con Swagger UI.
 
-* **Análisis Contextual con IA:** Evalúa *matchups* y composiciones de equipo usando la IA de Gemini para ofrecer recomendaciones personalizadas.
-* **Precisión con RAG:** Garantiza que la IA solo recomiende ítems y runas que existen en la versión actual del juego, eliminando el riesgo de "alucinaciones".
-* **Sincronización Automática:** Detecta nuevos parches de Riot Games y actualiza la base de datos sin intervención manual.
+## Stack tecnologico
 
-## 🛠️ Tecnologías Utilizadas
+- Node.js + Express
+- TypeScript
+- PostgreSQL
+- Prisma ORM
+- Gemini API
+- Riot Data Dragon API
 
-* **Entorno de ejecución:** Node.js
-* **Lenguaje:** TypeScript
-* **Base de Datos:** PostgreSQL
-* **ORM:** Prisma
-* **Integraciones:** Gemini API, Riot Games Data Dragon API
+## Requisitos previos
 
-## 🚀 Próximos Pasos
+- Node.js 20+ recomendado
+- npm 10+ recomendado
+- PostgreSQL disponible (local o cloud)
+- API Key de Gemini
 
-*(En construcción: Aquí se añadirán las instrucciones para clonar el repositorio, instalar dependencias con `npm install` y configurar el archivo `.env` local).*
+## Instalacion y configuracion inicial
 
-## 🚀 Deploy en Render (Producción)
+1. Clonar el repositorio
 
-Este repositorio ya incluye un blueprint en `render.yaml` para desplegar como Web Service.
+```bash
+git clone https://github.com/Sperrotta10/lol-mind-api.git
+cd lol-mind-api
+```
 
-### 1) Crear servicio
+2. Instalar dependencias
 
-1. En Render, crear un nuevo servicio desde este repositorio.
-2. Elegir el blueprint automático de `render.yaml`.
-3. Confirmar que los comandos sean:
-  - Build Command: `npm ci && npm run build`
-  - Start Command: `npm run start`
+```bash
+npm install
+```
 
-### 2) Variables de entorno requeridas
+3. Crear archivo .env en la raiz
 
-- `DATABASE_URL`
-- `GEMINI_API_KEY`
-- `CRON_SECRET`
-- `CORS_ORIGIN`
+```env
+PORT=3000
+NODE_ENV=development
 
-Variables ya definidas por blueprint:
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB_NAME?schema=public"
+DATABASE_SSL_REJECT_UNAUTHORIZED=false
 
-- `NODE_ENV=production`
-- `DATABASE_SSL_REJECT_UNAUTHORIZED=true`
+GEMINI_API_KEY="TU_GEMINI_API_KEY"
+CORS_ORIGIN="http://localhost:5173"
+CRON_SECRET="un_secreto_largo_para_el_endpoint_de_cron"
+```
 
-### 3) Migrations en arranque
+4. Generar cliente Prisma y aplicar migraciones
 
-El script `start` ejecuta automáticamente `prisma migrate deploy` antes de iniciar la API.
-Esto asegura que el esquema en producción esté sincronizado con las migraciones versionadas.
+```bash
+npm run prisma:generate
+npm run prisma:migrate
+```
 
-### 4) Healthcheck
+5. Levantar el servidor en desarrollo
 
-Render validará la API con el endpoint:
+```bash
+npm run dev
+```
+
+6. Verificar estado de la API
+
+```bash
+curl http://localhost:3000/health
+```
+
+## Scripts disponibles
+
+- `npm run dev`: ejecuta la API en modo desarrollo con watch.
+- `npm run start`: aplica migraciones pendientes y arranca la API.
+- `npm run build`: genera Prisma Client.
+- `npm run prisma:migrate`: crea y aplica migracion en desarrollo.
+- `npm run prisma:generate`: genera cliente de Prisma.
+- `npm run prisma:deploy`: aplica migraciones en entorno productivo.
+
+## Swagger (OpenAPI)
+
+- UI interactiva: `http://localhost:3000/api/docs`
+- JSON OpenAPI: `http://localhost:3000/api/docs.json`
+
+La documentacion se genera desde anotaciones `@openapi` en las rutas de `src/routes` y en `src/index.ts` para healthcheck.
+
+## Endpoints
+
+Base URL local: `http://localhost:3000`
+
+### Health
 
 - `GET /health`
+  - Descripcion: verifica que la API este activa.
+  - Respuesta 200: estado, uptime, timestamp y requestId.
 
-Si responde 200, el servicio queda marcado como saludable.
+### Riot
+
+- `POST /api/riot/sync`
+  - Descripcion: fuerza sincronizacion manual con Riot Data Dragon.
+  - Respuesta 200: version, championsSynced, itemsSynced, runesSynced.
+
+### Champions
+
+- `GET /api/champions`
+  - Descripcion: lista campeones guardados en DB.
+  - Query opcional:
+    - `search`: filtra por nombre o id.
+    - `tag`: filtra por rol/tag (Fighter, Mage, Tank, etc).
+  - Respuesta 200: arreglo de campeones.
+
+Ejemplo:
+
+```bash
+curl "http://localhost:3000/api/champions?search=ahri&tag=Mage"
+```
+
+### Matchup
+
+- `POST /api/matchup`
+  - Descripcion: analiza un enfrentamiento 1v1 y devuelve recomendacion.
+  - Body:
+
+```json
+{
+  "champion": "Ahri",
+  "enemy": "Zed"
+}
+```
+
+### Builds
+
+- `POST /api/builds/style`
+  - Descripcion: genera build theorycrafting por estilo.
+  - Body:
+
+```json
+{
+  "champion": "Garen",
+  "style": "Letalidad"
+}
+```
+
+- `GET /api/builds/base/:champion`
+  - Descripcion: genera build base meta para un campeon.
+
+Ejemplo:
+
+```bash
+curl "http://localhost:3000/api/builds/base/Garen"
+```
+
+### Team analysis
+
+- `POST /api/team-analysis`
+  - Descripcion: analiza composicion 5v5 y recomienda build para tu campeon.
+  - Body:
+
+```json
+{
+  "myTeam": ["Garen", "LeeSin", "Ahri", "Jinx", "Leona"],
+  "enemyTeam": ["Darius", "Viego", "Zed", "KaiSa", "Nautilus"],
+  "myChampion": "Ahri"
+}
+```
+
+## Flujo recomendado despues de instalar
+
+1. Levantar API con `npm run dev`.
+2. Ejecutar `POST /api/riot/sync` una vez para poblar datos iniciales.
+3. Abrir Swagger en `/api/docs` y probar endpoints.
 
 ## ⚖️ Legal Disclaimer
 

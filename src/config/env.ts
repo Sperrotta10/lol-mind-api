@@ -26,6 +26,7 @@ export const env = {
   DATABASE_URL: databaseUrl,
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || "",
   CORS_ORIGIN: process.env.CORS_ORIGIN || "",
+  BACKEND_URL: process.env.BACKEND_URL,
   CRON_SECRET: process.env.CRON_SECRET || "",
   DATABASE_SSL_REJECT_UNAUTHORIZED: parseBoolean(
     process.env.DATABASE_SSL_REJECT_UNAUTHORIZED,
