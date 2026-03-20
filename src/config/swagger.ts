@@ -25,9 +25,7 @@ const swaggerDefinition: swaggerJSDoc.OAS3Definition = {
 		{ name: "Health" },
 		{ name: "Riot" },
 		{ name: "Champions" },
-		{ name: "Matchup" },
 		{ name: "Builds" },
-		{ name: "Team Analysis" },
 		{ name: "Cron" },
 	],
 	components: {
