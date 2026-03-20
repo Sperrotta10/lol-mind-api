@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { env } from "./config/env.js";
+import { disconnectDatabase } from "./config/db.js";
 import cors, { type CorsOptions } from "cors";
 import express, {
 	type NextFunction,
@@ -16,7 +17,7 @@ interface ErrorWithStatus extends Error {
 }
 
 const app = express();
-const port = Number(env.PORT);
+const port = env.PORT;
 const isProduction = env.NODE_ENV === "production";
 
 const allowedOrigins = env.CORS_ORIGIN
@@ -109,9 +110,17 @@ type ShutdownSignal = "SIGINT" | "SIGTERM";
 
 const shutdown = (signal: ShutdownSignal) => {
 	console.log(`${signal} received. Closing HTTP server...`);
-	server.close((closeError?: Error) => {
+	server.close(async (closeError?: Error) => {
 		if (closeError) {
 			console.error("Error during server shutdown", closeError);
+			process.exit(1);
+			return;
+		}
+
+		try {
+			await disconnectDatabase();
+		} catch (disconnectError) {
+			console.error("Error during database shutdown", disconnectError);
 			process.exit(1);
 			return;
 		}

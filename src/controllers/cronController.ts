@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../config/db.js";
+import { env } from "../config/env.js";
 import { syncRiotData } from "../services/riotDataService.js";
 
 const RIOT_VERSIONS_URL = "https://ddragon.leagueoflegends.com/api/versions.json";
@@ -36,7 +37,7 @@ const fetchLatestRiotVersion = async (): Promise<string> => {
 export const runDailySync = async (_req: Request, res: Response): Promise<void> => {
 	try {
 		const authHeader = _req.headers.authorization;
-		const cronSecret = process.env.CRON_SECRET;
+		const cronSecret = env.CRON_SECRET;
 
 		if (!cronSecret) {
 			res.status(500).json({
