@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { env } from "./config/env.js";
 import { disconnectDatabase } from "./config/db.js";
+import { setupSwagger } from "./config/swagger.js";
 import cors, { type CorsOptions } from "cors";
 import express, {
 	type NextFunction,
@@ -49,8 +50,44 @@ app.use((req, res, next) => {
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "1mb" }));
+setupSwagger(app);
 app.use("/api", router);
 app.use("/api/admin", cronRoutes);
+
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     summary: Verifica estado de la API
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: API activa
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                     service:
+ *                       type: string
+ *                     uptime:
+ *                       type: number
+ *                     timestamp:
+ *                       type: string
+ *                       format: date-time
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     requestId:
+ *                       type: string
+ */
 app.get("/health", (_req: Request, res: Response) => {
 	res.status(200).json({
 		success: true,
