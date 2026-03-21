@@ -66,6 +66,13 @@ const findChampionsByNames = async (championNames: string[]): Promise<ChampionCo
 	return resolvedChampions;
 };
 
+const getItemResolutionPool = async () =>
+	getItemContext({
+		minGoldTotal: 0,
+		maxItems: 500,
+		excludeBootsAndConsumables: false,
+	});
+
 export const generateBuild = async (
 	championName: string,
 	enemyName: string,
@@ -78,11 +85,12 @@ export const generateBuild = async (
 		throw new AIServiceError("AI_INVALID_INPUT", "championName y enemyName son obligatorios");
 	}
 
-	const [allyChampion, enemyChampion, items, runes] = await Promise.all([
+	const [allyChampion, enemyChampion, items, runes, itemResolutionPool] = await Promise.all([
 		findChampionByName(championName),
 		findChampionByName(enemyName),
 		getItemContext(),
 		getRuneContext(),
+		getItemResolutionPool(),
 	]);
 
 	if (!allyChampion || !enemyChampion) {
@@ -111,7 +119,7 @@ export const generateBuild = async (
 	const rawText = await generateGeminiJson(env.GEMINI_API_KEY, composedPrompt);
 	const parsedResponse = parseMatchupResponse(rawText);
 
-	return enrichMatchupBuildResponse(parsedResponse, items, runes);
+	return enrichMatchupBuildResponse(parsedResponse, itemResolutionPool, runes);
 };
 
 export const generateStyleBuild = async (
@@ -126,10 +134,11 @@ export const generateStyleBuild = async (
 		throw new AIServiceError("AI_INVALID_INPUT", "championName y style son obligatorios");
 	}
 
-	const [champion, items, runes] = await Promise.all([
+	const [champion, items, runes, itemResolutionPool] = await Promise.all([
 		findChampionByName(championName),
 		getItemContext({ minGoldTotal: 1500, maxItems: 80 }),
 		getRuneContext(),
+		getItemResolutionPool(),
 	]);
 
 	if (!champion) {
@@ -154,7 +163,7 @@ export const generateStyleBuild = async (
 
 	const parsedResponse = parseStyleBuildResponse(rawText);
 
-	return enrichStyleBuildResponse(parsedResponse, items, runes);
+	return enrichStyleBuildResponse(parsedResponse, itemResolutionPool, runes);
 };
 
 export const generateBaseBuild = async (championName: string): Promise<BaseBuildResponse> => {
@@ -166,11 +175,12 @@ export const generateBaseBuild = async (championName: string): Promise<BaseBuild
 		throw new AIServiceError("AI_INVALID_INPUT", "championName es obligatorio");
 	}
 
-	const [champion, itemPool, runePool, bootsPool] = await Promise.all([
+	const [champion, itemPool, runePool, bootsPool, itemResolutionPool] = await Promise.all([
 		findChampionByName(championName),
 		getItemContext({ minGoldTotal: 1500, maxItems: 90, excludeBootsAndConsumables: true }),
 		getRuneContext(),
 		getItemContext({ minGoldTotal: 900, maxItems: 30, excludeBootsAndConsumables: false }),
+		getItemResolutionPool(),
 	]);
 
 	if (!champion) {
@@ -197,7 +207,7 @@ export const generateBaseBuild = async (championName: string): Promise<BaseBuild
 
 	const parsedResponse = parseBaseBuildResponse(rawText);
 
-	return enrichBaseBuildResponse(parsedResponse, [...itemPool, ...bootPool], runePool);
+	return enrichBaseBuildResponse(parsedResponse, itemResolutionPool, runePool);
 };
 
 export const analyzeTeamComp = async (
@@ -216,11 +226,12 @@ export const analyzeTeamComp = async (
 		);
 	}
 
-	const [myTeamChampions, enemyTeamChampions, itemPool, bootPool] = await Promise.all([
+	const [myTeamChampions, enemyTeamChampions, itemPool, bootPool, itemResolutionPool] = await Promise.all([
 		findChampionsByNames(myTeam),
 		findChampionsByNames(enemyTeam),
 		getItemContext({ minGoldTotal: 1700, maxItems: 80, excludeBootsAndConsumables: true }),
 		getItemContext({ minGoldTotal: 900, maxItems: 20, excludeBootsAndConsumables: false }),
+		getItemResolutionPool(),
 	]);
 
 	const myChampionContext = myTeamChampions.find(
@@ -255,5 +266,5 @@ export const analyzeTeamComp = async (
 
 	const parsedResponse = parseTeamCompResponse(rawText);
 
-	return enrichTeamCompResponse(parsedResponse, [...itemPool, ...onlyBoots]);
+	return enrichTeamCompResponse(parsedResponse, itemResolutionPool);
 };
