@@ -24,7 +24,27 @@ export interface RuneContext {
 	shortDesc: string;
 }
 
-export interface MatchupBuildResponse {
+export interface BuildItemReference {
+	id: string | null;
+	name: string;
+	image: string | null;
+}
+
+export interface BuildRuneReference {
+	id: number | null;
+	key: string | null;
+	name: string;
+	tree: string | null;
+	image: string | null;
+	treeImage: string | null;
+}
+
+export interface RuneTreeReference {
+	name: string;
+	image: string | null;
+}
+
+export interface RawMatchupBuildResponse {
 	matchup: {
 		allyChampion: string;
 		enemyChampion: string;
@@ -52,7 +72,35 @@ export interface MatchupBuildResponse {
 	};
 }
 
-export interface StyleBuildResponse {
+export interface MatchupBuildResponse {
+	matchup: {
+		allyChampion: string;
+		enemyChampion: string;
+		lanePlan: string;
+		winCondition: string;
+		riskAlerts: string[];
+	};
+	build: {
+		startingItems: BuildItemReference[];
+		coreItems: BuildItemReference[];
+		situationalItems: BuildItemReference[];
+		boots: BuildItemReference;
+	};
+	runes: {
+		primaryTree: RuneTreeReference;
+		primaryChoices: BuildRuneReference[];
+		secondaryTree: RuneTreeReference;
+		secondaryChoices: BuildRuneReference[];
+		shards: string[];
+	};
+	microPlan: {
+		earlyGame: string[];
+		midGame: string[];
+		lateGame: string[];
+	};
+}
+
+export interface RawStyleBuildResponse {
 	coreItems: string[];
 	situationalItems: string[];
 	runes: {
@@ -65,7 +113,20 @@ export interface StyleBuildResponse {
 	playstyleExplanation: string;
 }
 
-export interface TeamCompAnalysisResponse {
+export interface StyleBuildResponse {
+	coreItems: BuildItemReference[];
+	situationalItems: BuildItemReference[];
+	runes: {
+		primaryTree: RuneTreeReference;
+		primaryChoices: BuildRuneReference[];
+		secondaryTree: RuneTreeReference;
+		secondaryChoices: BuildRuneReference[];
+		shards: string[];
+	};
+	playstyleExplanation: string;
+}
+
+export interface RawTeamCompAnalysisResponse {
 	composition: {
 		myTeamDamageProfile: string;
 		enemyTeamDamageProfile: string;
@@ -80,7 +141,22 @@ export interface TeamCompAnalysisResponse {
 	explanation: string;
 }
 
-export interface BaseBuildResponse {
+export interface TeamCompAnalysisResponse {
+	composition: {
+		myTeamDamageProfile: string;
+		enemyTeamDamageProfile: string;
+		ccAdvantage: string;
+		globalWinCondition: string;
+	};
+	recommendedBuild: {
+		coreItems: BuildItemReference[];
+		situationalItems: BuildItemReference[];
+		boots: BuildItemReference;
+	};
+	explanation: string;
+}
+
+export interface RawBaseBuildResponse {
 	coreItems: string[];
 	situationalItems: string[];
 	boots: string;
@@ -89,6 +165,19 @@ export interface BaseBuildResponse {
 		primaryChoices: string[];
 		secondaryTree: string;
 		secondaryChoices: string[];
+		shards: string[];
+	};
+}
+
+export interface BaseBuildResponse {
+	coreItems: BuildItemReference[];
+	situationalItems: BuildItemReference[];
+	boots: BuildItemReference;
+	runes: {
+		primaryTree: RuneTreeReference;
+		primaryChoices: BuildRuneReference[];
+		secondaryTree: RuneTreeReference;
+		secondaryChoices: BuildRuneReference[];
 		shards: string[];
 	};
 }

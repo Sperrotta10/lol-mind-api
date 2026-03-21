@@ -1,6 +1,6 @@
 import { Type } from "@google/genai";
 import { AIServiceError } from "./errors.js";
-import type { BaseBuildResponse, ChampionContext, ItemContext, RuneContext } from "./types.js";
+import type { ChampionContext, ItemContext, RawBaseBuildResponse, RuneContext } from "./types.js";
 
 interface BaseBuildContext {
 	champion: ChampionContext;
@@ -67,10 +67,10 @@ const extractJsonText = (rawText: string): string => {
 	throw new AIServiceError("AI_INVALID_JSON", "La respuesta de Gemini no contiene JSON valido");
 };
 
-export const parseBaseBuildResponse = (rawText: string): BaseBuildResponse => {
+export const parseBaseBuildResponse = (rawText: string): RawBaseBuildResponse => {
 	try {
 		const jsonText = extractJsonText(rawText);
-		return JSON.parse(jsonText) as BaseBuildResponse;
+		return JSON.parse(jsonText) as RawBaseBuildResponse;
 	} catch (error) {
 		throw new AIServiceError("AI_PARSE_ERROR", "No se pudo parsear el JSON de build base", {
 			rawText,
