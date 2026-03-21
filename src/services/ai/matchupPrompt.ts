@@ -1,7 +1,7 @@
 import { Type } from "@google/genai";
 import type { BuildContext } from "./types.js";
 
-export const buildSystemPrompt = (): string => `
+export const buildMatchupSystemPrompt = (): string => `
 Eres un analista experto en League of Legends.
 Reglas obligatorias:
 1) Responde solo en JSON valido, sin markdown ni texto extra.
@@ -59,7 +59,7 @@ export const buildResponseSchema = () => ({
 	required: ["matchup", "build", "runes", "microPlan"],
 });
 
-export const buildContextBlock = ({ allyChampion, enemyChampion, items, runes }: BuildContext): string =>
+export const buildMatchupContextBlock = ({ allyChampion, enemyChampion, items, runes }: BuildContext): string =>
 	[
 		"CONTEXT_BLOCK",
 		JSON.stringify(
@@ -76,7 +76,7 @@ export const buildContextBlock = ({ allyChampion, enemyChampion, items, runes }:
 		),
 	].join("\n");
 
-export const buildUserPrompt = (championName: string, enemyName: string): string => `
+export const buildMatchupUserPrompt = (championName: string, enemyName: string): string => `
 USER_PROMPT
 Analiza el matchup ${championName} vs ${enemyName} y entrega plan tactico, build y runas.
 Prioriza claridad accionable para ranked soloQ.
