@@ -118,12 +118,55 @@ Base URL local: `http://localhost:3000`
   - Query opcional:
     - `search`: filtra por nombre o id.
     - `tag`: filtra por rol/tag (Fighter, Mage, Tank, etc).
-  - Respuesta 200: arreglo de campeones.
+  - Respuesta 200: arreglo de campeones con `image`, `avatar` y `splash`.
 
 Ejemplo:
 
 ```bash
 curl "http://localhost:3000/api/champions?search=ahri&tag=Mage"
+```
+
+### Items
+
+- `GET /api/items`
+  - Descripcion: lista items guardados en DB.
+  - Query opcional:
+    - `search`: filtra por nombre o id.
+    - `tag`: filtra por tag de item (Armor, Damage, Mana, etc).
+  - Respuesta 200: arreglo de items con campo `image`.
+
+Ejemplo:
+
+```bash
+curl "http://localhost:3000/api/items?search=botas&tag=Boots"
+```
+
+### Runes
+
+- `GET /api/runes`
+  - Descripcion: lista runas guardadas en DB.
+  - Query opcional:
+    - `search`: filtra por nombre o key.
+    - `tree`: filtra por rama (Precision, Domination, Sorcery, Resolve, Inspiration).
+    - `slot`: filtra por slot (0 keystone, 1 a 3 runas menores).
+  - Respuesta 200: arreglo de runas con `image` y `treeImage`.
+
+Ejemplo:
+
+```bash
+curl "http://localhost:3000/api/runes?tree=Precision&slot=0"
+```
+
+### Versions
+
+- `GET /api/versions`
+  - Descripcion: lista versiones sincronizadas en DB.
+  - Respuesta 200: arreglo de versiones con campo `image`.
+
+Ejemplo:
+
+```bash
+curl "http://localhost:3000/api/versions"
 ```
 
 ### Builds
