@@ -3,6 +3,7 @@ import { env } from "./config/env.js";
 import { disconnectDatabase } from "./config/db.js";
 import { setupSwagger } from "./config/swagger.js";
 import cors, { type CorsOptions } from "cors";
+import morgan from "morgan";
 import express, {
 	type NextFunction,
 	type Request,
@@ -40,7 +41,7 @@ const corsOptions: CorsOptions = {
 };
 
 app.disable("x-powered-by");
-
+app.use(morgan("combined"));
 app.use((req, res, next) => {
 	const requestId = req.header("x-request-id") ?? randomUUID();
 	res.locals.requestId = requestId;
