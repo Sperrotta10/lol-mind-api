@@ -69,7 +69,7 @@ const findChampionsByNames = async (championNames: string[]): Promise<ChampionCo
 const getItemResolutionPool = async () =>
 	getItemContext({
 		minGoldTotal: 0,
-		maxItems: 500,
+		maxItems: 5_000,
 		excludeBootsAndConsumables: false,
 	});
 

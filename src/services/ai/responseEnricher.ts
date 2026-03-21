@@ -15,7 +15,13 @@ import type {
 } from "./types.js";
 import { buildItemImageUrl, buildRuneImageUrl, buildRuneTreeImageUrl } from "../../utils/ddragonImageUrls.js";
 
-const normalizeLookupValue = (value: string): string => value.trim().toLowerCase();
+const normalizeLookupValue = (value: string): string =>
+	value
+		.trim()
+		.toLowerCase()
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/['’`]/g, "");
 
 const findItemMatch = (itemName: string, items: ItemContext[]): ItemContext | undefined => {
 	const normalizedName = normalizeLookupValue(itemName);
