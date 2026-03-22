@@ -13,23 +13,20 @@ export const triggerSync = async (_req: Request, res: Response): Promise<void> =
 			},
 		});
 	} catch (error: unknown) {
-		console.error("[riotController.triggerSync] Error al sincronizar Data Dragon", {
-			requestId: res.locals.requestId,
-			error,
-			stack: error instanceof Error ? error.stack : undefined,
-		});
+		console.error("[riotController.triggerSync] Error al sincronizar Data Dragon");
+		console.error(error);
 
-		const message = error instanceof Error ? error.message : "Error inesperado en sincronizacion";
+		if (error instanceof Error) {
+			res.status(500).json({
+				error: error.message,
+				stack: error.stack,
+			});
+			return;
+		}
 
 		res.status(500).json({
-			success: false,
-			error: {
-				code: "RIOT_SYNC_FAILED",
-				message,
-			},
-			meta: {
-				requestId: res.locals.requestId,
-			},
+			error: "Error inesperado en sincronizacion",
+			stack: undefined,
 		});
 	}
 };

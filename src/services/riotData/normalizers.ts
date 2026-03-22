@@ -6,6 +6,17 @@ import type { Prisma } from "../../generated/prisma/index.js";
 const asInputJson = (value: unknown, fallback: Prisma.InputJsonValue): Prisma.InputJsonValue =>
 	isObject(value) ? (value as unknown as Prisma.InputJsonValue) : fallback;
 
+const BUGGED_TRIUMPH_ICON_PATH = "perk-images/Styles/Precision/Triumph/Triumph.png";
+const FIXED_TRIUMPH_ICON_PATH = "perk-images/Styles/Precision/Triumph.png";
+
+export const sanitizeRuneIconPath = (iconPath: string): string => {
+	if (iconPath === BUGGED_TRIUMPH_ICON_PATH) {
+		return FIXED_TRIUMPH_ICON_PATH;
+	}
+
+	return iconPath;
+};
+
 export const normalizeChampionRecords = (payload: unknown): NormalizedChampion[] => {
 	if (!isObject(payload) || !isObject(payload.data)) {
 		throw new RiotDataSyncError({
@@ -124,11 +135,13 @@ export const normalizeRuneRecords = (payload: unknown): NormalizedRune[] => {
 				const name = asString(runeNode.name);
 				const shortDesc = asString(runeNode.shortDesc);
 				const longDesc = asString(runeNode.longDesc);
-				const icon = asString(runeNode.icon);
+				const riotIconPath = asString(runeNode.icon);
 
-				if (id === null || !key || !name || !shortDesc || !longDesc || !icon) {
+				if (id === null || !key || !name || !shortDesc || !longDesc || !riotIconPath) {
 					return;
 				}
+
+				const icon = sanitizeRuneIconPath(riotIconPath);
 
 				runes.push({
 					id,
