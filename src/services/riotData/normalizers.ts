@@ -37,6 +37,9 @@ export const normalizeChampionRecords = (payload: unknown): NormalizedChampion[]
 			key,
 			name,
 			title,
+			avatar: `${id}.png`,
+			loading: `${id}_0.jpg`,
+			splash: `${id}_0.jpg`,
 			tags: asStringArray(value.tags),
 			stats: asInputJson(value.stats, {}),
 		});
@@ -73,6 +76,7 @@ export const normalizeItemRecords = (payload: unknown): NormalizedItem[] => {
 			name,
 			description,
 			plaintext: asString(value.plaintext),
+			image: `${id}.png`,
 			gold: asInputJson(value.gold, {}),
 			stats: isObject(value.stats) ? asInputJson(value.stats, {}) : null,
 			tags: asStringArray(value.tags),
@@ -99,8 +103,9 @@ export const normalizeRuneRecords = (payload: unknown): NormalizedRune[] => {
 		}
 
 		const treeKey = asString(treeNode.key);
+		const treeIcon = asString(treeNode.icon);
 		const slots = treeNode.slots;
-		if (!treeKey || !Array.isArray(slots)) {
+		if (!treeKey || !treeIcon || !Array.isArray(slots)) {
 			continue;
 		}
 
@@ -119,8 +124,9 @@ export const normalizeRuneRecords = (payload: unknown): NormalizedRune[] => {
 				const name = asString(runeNode.name);
 				const shortDesc = asString(runeNode.shortDesc);
 				const longDesc = asString(runeNode.longDesc);
+				const icon = asString(runeNode.icon);
 
-				if (id === null || !key || !name || !shortDesc || !longDesc) {
+				if (id === null || !key || !name || !shortDesc || !longDesc || !icon) {
 					return;
 				}
 
@@ -130,6 +136,8 @@ export const normalizeRuneRecords = (payload: unknown): NormalizedRune[] => {
 					name,
 					shortDesc,
 					longDesc,
+						icon,
+						treeIcon,
 					tree: treeKey,
 					slot: slotIndex,
 				});
