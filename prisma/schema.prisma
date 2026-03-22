@@ -30,6 +30,9 @@ model Champion {
   key         Int      @unique // El ID numérico interno (Ej: 5, 86)
   name        String   // "Xin Zhao"
   title       String   // "El Senescal de Demacia"
+  avatar      String   // Nombre de archivo para /img/champion (Ej: "Aatrox.png")
+  loading     String   // Nombre de archivo para /champion/loading (Ej: "Aatrox_0.jpg")
+  splash      String   // Nombre de archivo para /champion/splash (Ej: "Aatrox_0.jpg")
   tags        String[] // ["Fighter", "Assassin"] -> Postgres soporta arreglos nativos
   stats       Json     // JSONB con toda la data matemática (vida, armadura, etc.)
   updatedAt   DateTime @updatedAt
@@ -43,6 +46,7 @@ model Item {
   name        String   // "Ángel Guardián"
   description String   // La descripción detallada (OJO: Riot la envía con etiquetas HTML)
   plaintext   String?  // Un resumen muy corto ("Revive al recibir daño letal")
+  image       String   // Nombre de archivo para /img/item (Ej: "1001.png")
   gold        Json     // JSONB con { base, total, sell, purchasable }
   stats       Json?    // JSONB con los stats crudos del ítem
   tags        String[] // ["Armor", "Damage"] -> Vital para filtrar rápido
@@ -58,6 +62,8 @@ model Rune {
   name        String   // Nombre público (Ej: "Conquistador")
   shortDesc   String   // Descripción resumida (OJO: También trae etiquetas HTML)
   longDesc    String   // Descripción detallada con las matemáticas exactas
+  icon        String   // Ruta relativa de la runa (Ej: "perk-images/Styles/Precision/Triumph.png")
+  treeIcon    String   // Ruta relativa de la rama (Ej: "perk-images/Styles/7201_Precision.png")
   tree        String   // La rama a la que pertenece (Ej: "Precision", "Domination")
   slot        Int      // 0 = Piedra Angular (Keystone), 1, 2 o 3 = Runas menores
   updatedAt   DateTime @updatedAt
