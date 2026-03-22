@@ -1,5 +1,5 @@
 import { prisma } from "../config/db.js";
-import { buildItemImageUrl } from "../utils/ddragonImageUrls.js";
+import { buildItemImageUrl, DEFAULT_DDRAGON_VERSION } from "../utils/ddragonImageUrls.js";
 
 interface ItemListItem {
 	id: string;
@@ -29,9 +29,19 @@ const parseQueryValue = (value: string | string[] | undefined): string | undefin
 	return undefined;
 };
 
+const getCurrentGameVersion = async (): Promise<string> => {
+	const currentVersionRecord = await prisma.gameVersion.findFirst({
+		where: { isCurrent: true },
+		orderBy: { createdAt: "desc" },
+	});
+
+	return currentVersionRecord?.version ?? DEFAULT_DDRAGON_VERSION;
+};
+
 export const listItems = async (filters: ItemFilters = {}): Promise<ItemListItem[]> => {
 	const search = parseQueryValue(filters.search);
 	const tag = parseQueryValue(filters.tag);
+	const currentVersion = await getCurrentGameVersion();
 
 	const items = await prisma.item.findMany({
 		where: {
@@ -56,6 +66,7 @@ export const listItems = async (filters: ItemFilters = {}): Promise<ItemListItem
 			name: true,
 			description: true,
 			plaintext: true,
+			image: true,
 			tags: true,
 		},
 		orderBy: {
@@ -69,6 +80,6 @@ export const listItems = async (filters: ItemFilters = {}): Promise<ItemListItem
 		description: item.description,
 		plaintext: item.plaintext,
 		tags: item.tags,
-		image: buildItemImageUrl(item.id),
+		image: buildItemImageUrl(item.image, currentVersion),
 	}));
 };

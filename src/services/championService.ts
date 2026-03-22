@@ -89,6 +89,9 @@ export const listChampions = async (filters: ChampionFilters = {}): Promise<Cham
 			id: true,
 			name: true,
 			title: true,
+			avatar: true,
+			loading: true,
+			splash: true,
 			tags: true,
 		},
 		orderBy: {
@@ -97,9 +100,9 @@ export const listChampions = async (filters: ChampionFilters = {}): Promise<Cham
 	});
 
 	return champions.map((champion) => {
-		const image = buildChampionLoadingImageUrl(champion.id);
-		const avatar = buildChampionAvatarImageUrl(champion.id, currentVersion);
-		const splash = buildChampionSplashImageUrl(champion.id);
+		const image = buildChampionLoadingImageUrl(champion.loading);
+		const avatar = buildChampionAvatarImageUrl(champion.avatar, currentVersion);
+		const splash = buildChampionSplashImageUrl(champion.splash);
 
 		return {
 			id: champion.id,

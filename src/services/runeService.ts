@@ -1,5 +1,5 @@
 import { prisma } from "../config/db.js";
-import { buildRuneImageUrl, buildRuneTreeImageUrl } from "../utils/ddragonImageUrls.js";
+import { buildRuneIconUrl } from "../utils/ddragonImageUrls.js";
 
 interface RuneListItem {
 	id: number;
@@ -77,6 +77,8 @@ export const listRunes = async (filters: RuneFilters = {}): Promise<RuneListItem
 			name: true,
 			shortDesc: true,
 			longDesc: true,
+			icon: true,
+			treeIcon: true,
 			tree: true,
 			slot: true,
 		},
@@ -91,7 +93,7 @@ export const listRunes = async (filters: RuneFilters = {}): Promise<RuneListItem
 		longDesc: rune.longDesc,
 		tree: rune.tree,
 		slot: rune.slot,
-		image: buildRuneImageUrl(rune.tree, rune.key),
-		treeImage: buildRuneTreeImageUrl(rune.tree),
+		image: buildRuneIconUrl(rune.icon),
+		treeImage: buildRuneIconUrl(rune.treeIcon),
 	}));
 };
