@@ -13,7 +13,7 @@ import type {
 	StyleBuildResponse,
 	TeamCompAnalysisResponse,
 } from "./types.js";
-import { buildItemImageUrl, buildRuneImageUrl, buildRuneTreeImageUrl } from "../../utils/ddragonImageUrls.js";
+import { buildItemImageUrl, buildRuneIconUrl } from "../../utils/ddragonImageUrls.js";
 
 const normalizeLookupValue = (value: string): string =>
 	value
@@ -54,7 +54,7 @@ const toBuildItemReference = (itemIdentifier: string, items: ItemContext[]): Bui
 	return {
 		id: matchedItem?.id ?? null,
 		name: matchedItem?.name ?? normalizedIdentifier,
-		image: matchedItem ? buildItemImageUrl(matchedItem.id) : null,
+		image: matchedItem ? buildItemImageUrl(matchedItem.image) : null,
 	};
 };
 
@@ -71,7 +71,7 @@ const toBuildItemReferenceStrict = (
 	return {
 		id: matchedItem.id,
 		name: matchedItem.name,
-		image: buildItemImageUrl(matchedItem.id),
+		image: buildItemImageUrl(matchedItem.image),
 	};
 };
 
@@ -90,8 +90,8 @@ const toBuildRuneReferenceStrict = (
 		key: matchedRune.key,
 		name: matchedRune.name,
 		tree: matchedRune.tree,
-		image: buildRuneImageUrl(matchedRune.tree, matchedRune.key),
-		treeImage: buildRuneTreeImageUrl(matchedRune.tree),
+		image: buildRuneIconUrl(matchedRune.icon),
+		treeImage: buildRuneIconUrl(matchedRune.treeIcon),
 	};
 };
 
@@ -132,9 +132,8 @@ const toRuneTreeReference = (treeName: string, runes: RuneContext[]): RuneTreeRe
 	const normalizedTreeName = treeName.trim();
 	const normalizedLookup = normalizeLookupValue(normalizedTreeName);
 	const matchedTree = runes.find((rune) => normalizeLookupValue(rune.tree) === normalizedLookup);
-	const resolvedTree = matchedTree?.tree ?? normalizedTreeName;
 
-	if (!resolvedTree) {
+	if (!matchedTree) {
 		return {
 			name: normalizedTreeName,
 			image: null,
@@ -142,8 +141,8 @@ const toRuneTreeReference = (treeName: string, runes: RuneContext[]): RuneTreeRe
 	}
 
 	return {
-		name: resolvedTree,
-		image: buildRuneTreeImageUrl(resolvedTree),
+		name: matchedTree.tree,
+		image: buildRuneIconUrl(matchedTree.treeIcon),
 	};
 };
 

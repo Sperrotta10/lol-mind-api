@@ -11,6 +11,7 @@ export interface ItemContext {
 	id: string;
 	name: string;
 	plaintext: string | null;
+	image: string;
 	tags: string[];
 	goldTotal: number | null;
 }
@@ -19,6 +20,8 @@ export interface RuneContext {
 	id: number;
 	key: string;
 	name: string;
+	icon: string;
+	treeIcon: string;
 	tree: string;
 	slot: number;
 	shortDesc: string;
