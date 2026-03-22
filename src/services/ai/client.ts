@@ -1,7 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { DEFAULT_MODEL } from "./constants.js";
 import { AIServiceError } from "./errors.js";
-import { buildResponseSchema } from "./matchupPrompt.js";
 
 interface GenerateGeminiJsonOptions {
 	responseSchema: unknown;
@@ -38,8 +37,3 @@ export const generateGeminiJsonWithSchema = async (
 
 	return rawText;
 };
-
-export const generateGeminiJson = async (apiKey: string, prompt: string): Promise<string> =>
-	generateGeminiJsonWithSchema(apiKey, prompt, {
-		responseSchema: buildResponseSchema(),
-	});

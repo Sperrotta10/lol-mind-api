@@ -1,4 +1,4 @@
-import { generateGeminiJson, generateGeminiJsonWithSchema } from "./ai/client.js";
+import { generateGeminiJsonWithSchema } from "./ai/client.js";
 import { findChampionByName, getItemContext, getRuneContext } from "./ai/contextRepository.js";
 import { AIServiceError } from "./ai/errors.js";
 import {
@@ -7,6 +7,7 @@ import {
 	buildBaseSystemPrompt,
 	buildBaseUserPrompt,
 	buildMatchupContextBlock,
+	buildResponseSchema,
 	buildMatchupSystemPrompt,
 	buildMatchupUserPrompt,
 	buildStyleContextBlock,
@@ -116,7 +117,9 @@ export const generateBuild = async (
 	const userPrompt = buildMatchupUserPrompt(allyChampion.name, enemyChampion.name);
 
 	const composedPrompt = composePrompt({ systemPrompt, contextBlock, userPrompt });
-	const rawText = await generateGeminiJson(env.GEMINI_API_KEY, composedPrompt);
+	const rawText = await generateGeminiJsonWithSchema(env.GEMINI_API_KEY, composedPrompt, {
+		responseSchema: buildResponseSchema(),
+	});
 	const parsedResponse = parseMatchupResponse(rawText);
 
 	return enrichMatchupBuildResponse(parsedResponse, itemResolutionPool, runes);
