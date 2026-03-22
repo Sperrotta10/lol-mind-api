@@ -136,8 +136,8 @@ export const normalizeRuneRecords = (payload: unknown): NormalizedRune[] => {
 					name,
 					shortDesc,
 					longDesc,
-						icon,
-						treeIcon,
+					icon,
+					treeIcon,
 					tree: treeKey,
 					slot: slotIndex,
 				});
