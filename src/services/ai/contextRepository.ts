@@ -115,5 +115,5 @@ export const getRuneContext = async (): Promise<RuneContext[]> => {
 		orderBy: [{ tree: "asc" }, { slot: "asc" }],
 	});
 
-	return runes.slice(0, MAX_RUNES_FOR_CONTEXT);
+	return runes;
 };

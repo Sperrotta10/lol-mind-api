@@ -23,46 +23,66 @@ const normalizeLookupValue = (value: string): string =>
 		.replace(/[\u0300-\u036f]/g, "")
 		.replace(/['’`]/g, "");
 
-const findItemMatch = (itemName: string, items: ItemContext[]): ItemContext | undefined => {
-	const normalizedName = normalizeLookupValue(itemName);
+const findItemMatch = (itemIdentifier: string, items: ItemContext[]): ItemContext | undefined => {
+	const normalizedIdentifier = normalizeLookupValue(itemIdentifier);
+	const trimmedIdentifier = itemIdentifier.trim();
 
-	return items.find((item) => normalizeLookupValue(item.name) === normalizedName);
-};
-
-const findRuneMatch = (runeName: string, runes: RuneContext[]): RuneContext | undefined => {
-	const normalizedName = normalizeLookupValue(runeName);
-
-	return runes.find(
-		(rune) =>
-			normalizeLookupValue(rune.name) === normalizedName
-			|| normalizeLookupValue(rune.key) === normalizedName,
+	return items.find(
+		(item) =>
+			item.id === trimmedIdentifier
+			|| normalizeLookupValue(item.id) === normalizedIdentifier
+			|| normalizeLookupValue(item.name) === normalizedIdentifier,
 	);
 };
 
-const toBuildItemReference = (itemName: string, items: ItemContext[]): BuildItemReference => {
-	const normalizedName = itemName.trim();
-	const matchedItem = findItemMatch(normalizedName, items);
+const findRuneMatch = (runeIdentifier: string, runes: RuneContext[]): RuneContext | undefined => {
+	const normalizedIdentifier = normalizeLookupValue(runeIdentifier);
+	const trimmedIdentifier = runeIdentifier.trim();
+
+	return runes.find(
+		(rune) =>
+			rune.id.toString() === trimmedIdentifier
+			|| normalizeLookupValue(rune.name) === normalizedIdentifier
+			|| normalizeLookupValue(rune.key) === normalizedIdentifier,
+	);
+};
+
+const toBuildItemReference = (itemIdentifier: string, items: ItemContext[]): BuildItemReference => {
+	const normalizedIdentifier = itemIdentifier.trim();
+	const matchedItem = findItemMatch(normalizedIdentifier, items);
 
 	return {
 		id: matchedItem?.id ?? null,
-		name: normalizedName,
+		name: matchedItem?.name ?? normalizedIdentifier,
 		image: matchedItem ? buildItemImageUrl(matchedItem.id) : null,
 	};
 };
 
-const toBuildRuneReference = (runeName: string, runes: RuneContext[]): BuildRuneReference => {
-	const normalizedName = runeName.trim();
-	const matchedRune = findRuneMatch(normalizedName, runes);
+const toBuildItemReferenceStrict = (
+	itemIdentifier: string,
+	items: ItemContext[],
+): BuildItemReference | undefined => {
+	const matchedItem = findItemMatch(itemIdentifier, items);
+
+	if (!matchedItem) {
+		return undefined;
+	}
+
+	return {
+		id: matchedItem.id,
+		name: matchedItem.name,
+		image: buildItemImageUrl(matchedItem.id),
+	};
+};
+
+const toBuildRuneReferenceStrict = (
+	runeIdentifier: string,
+	runes: RuneContext[],
+): BuildRuneReference | undefined => {
+	const matchedRune = findRuneMatch(runeIdentifier, runes);
 
 	if (!matchedRune) {
-		return {
-			id: null,
-			key: null,
-			name: normalizedName,
-			tree: null,
-			image: null,
-			treeImage: null,
-		};
+		return undefined;
 	}
 
 	return {
@@ -74,6 +94,39 @@ const toBuildRuneReference = (runeName: string, runes: RuneContext[]): BuildRune
 		treeImage: buildRuneTreeImageUrl(matchedRune.tree),
 	};
 };
+
+const mapStrictItems = (
+	identifiers: string[],
+	itemPool: ItemContext[],
+): BuildItemReference[] =>
+	identifiers
+		.map((identifier) => toBuildItemReferenceStrict(identifier, itemPool))
+		.filter((item): item is BuildItemReference => item !== undefined);
+
+const mapStrictRunes = (
+	identifiers: string[],
+	runePool: RuneContext[],
+): BuildRuneReference[] =>
+	identifiers
+		.map((identifier) => toBuildRuneReferenceStrict(identifier, runePool))
+		.filter((rune): rune is BuildRuneReference => rune !== undefined);
+
+const buildEnrichedRunes = (
+	rawRunes: {
+		primaryTree: string;
+		primaryChoices: string[];
+		secondaryTree: string;
+		secondaryChoices: string[];
+		shards: string[];
+	},
+	runePool: RuneContext[],
+) => ({
+	primaryTree: toRuneTreeReference(rawRunes.primaryTree, runePool),
+	primaryChoices: mapStrictRunes(rawRunes.primaryChoices, runePool),
+	secondaryTree: toRuneTreeReference(rawRunes.secondaryTree, runePool),
+	secondaryChoices: mapStrictRunes(rawRunes.secondaryChoices, runePool),
+	shards: rawRunes.shards,
+});
 
 const toRuneTreeReference = (treeName: string, runes: RuneContext[]): RuneTreeReference => {
 	const normalizedTreeName = treeName.trim();
@@ -101,28 +154,12 @@ export const enrichMatchupBuildResponse = (
 ): MatchupBuildResponse => ({
 	matchup: rawResponse.matchup,
 	build: {
-		startingItems: rawResponse.build.startingItems.map((itemName) =>
-			toBuildItemReference(itemName, itemPool),
-		),
-		coreItems: rawResponse.build.coreItems.map((itemName) =>
-			toBuildItemReference(itemName, itemPool),
-		),
-		situationalItems: rawResponse.build.situationalItems.map((itemName) =>
-			toBuildItemReference(itemName, itemPool),
-		),
+		startingItems: mapStrictItems(rawResponse.build.startingItems, itemPool),
+		coreItems: mapStrictItems(rawResponse.build.coreItems, itemPool),
+		situationalItems: mapStrictItems(rawResponse.build.situationalItems, itemPool),
 		boots: toBuildItemReference(rawResponse.build.boots, itemPool),
 	},
-	runes: {
-		primaryTree: toRuneTreeReference(rawResponse.runes.primaryTree, runePool),
-		primaryChoices: rawResponse.runes.primaryChoices.map((runeName) =>
-			toBuildRuneReference(runeName, runePool),
-		),
-		secondaryTree: toRuneTreeReference(rawResponse.runes.secondaryTree, runePool),
-		secondaryChoices: rawResponse.runes.secondaryChoices.map((runeName) =>
-			toBuildRuneReference(runeName, runePool),
-		),
-		shards: rawResponse.runes.shards,
-	},
+	runes: buildEnrichedRunes(rawResponse.runes, runePool),
 	microPlan: rawResponse.microPlan,
 });
 
@@ -131,21 +168,9 @@ export const enrichStyleBuildResponse = (
 	itemPool: ItemContext[],
 	runePool: RuneContext[],
 ): StyleBuildResponse => ({
-	coreItems: rawResponse.coreItems.map((itemName) => toBuildItemReference(itemName, itemPool)),
-	situationalItems: rawResponse.situationalItems.map((itemName) =>
-		toBuildItemReference(itemName, itemPool),
-	),
-	runes: {
-		primaryTree: toRuneTreeReference(rawResponse.runes.primaryTree, runePool),
-		primaryChoices: rawResponse.runes.primaryChoices.map((runeName) =>
-			toBuildRuneReference(runeName, runePool),
-		),
-		secondaryTree: toRuneTreeReference(rawResponse.runes.secondaryTree, runePool),
-		secondaryChoices: rawResponse.runes.secondaryChoices.map((runeName) =>
-			toBuildRuneReference(runeName, runePool),
-		),
-		shards: rawResponse.runes.shards,
-	},
+	coreItems: mapStrictItems(rawResponse.coreItems, itemPool),
+	situationalItems: mapStrictItems(rawResponse.situationalItems, itemPool),
+	runes: buildEnrichedRunes(rawResponse.runes, runePool),
 	playstyleExplanation: rawResponse.playstyleExplanation,
 });
 
@@ -154,22 +179,10 @@ export const enrichBaseBuildResponse = (
 	itemPool: ItemContext[],
 	runePool: RuneContext[],
 ): BaseBuildResponse => ({
-	coreItems: rawResponse.coreItems.map((itemName) => toBuildItemReference(itemName, itemPool)),
-	situationalItems: rawResponse.situationalItems.map((itemName) =>
-		toBuildItemReference(itemName, itemPool),
-	),
+	coreItems: mapStrictItems(rawResponse.coreItems, itemPool),
+	situationalItems: mapStrictItems(rawResponse.situationalItems, itemPool),
 	boots: toBuildItemReference(rawResponse.boots, itemPool),
-	runes: {
-		primaryTree: toRuneTreeReference(rawResponse.runes.primaryTree, runePool),
-		primaryChoices: rawResponse.runes.primaryChoices.map((runeName) =>
-			toBuildRuneReference(runeName, runePool),
-		),
-		secondaryTree: toRuneTreeReference(rawResponse.runes.secondaryTree, runePool),
-		secondaryChoices: rawResponse.runes.secondaryChoices.map((runeName) =>
-			toBuildRuneReference(runeName, runePool),
-		),
-		shards: rawResponse.runes.shards,
-	},
+	runes: buildEnrichedRunes(rawResponse.runes, runePool),
 });
 
 export const enrichTeamCompResponse = (
@@ -178,12 +191,8 @@ export const enrichTeamCompResponse = (
 ): TeamCompAnalysisResponse => ({
 	composition: rawResponse.composition,
 	recommendedBuild: {
-		coreItems: rawResponse.recommendedBuild.coreItems.map((itemName) =>
-			toBuildItemReference(itemName, itemPool),
-		),
-		situationalItems: rawResponse.recommendedBuild.situationalItems.map((itemName) =>
-			toBuildItemReference(itemName, itemPool),
-		),
+		coreItems: mapStrictItems(rawResponse.recommendedBuild.coreItems, itemPool),
+		situationalItems: mapStrictItems(rawResponse.recommendedBuild.situationalItems, itemPool),
 		boots: toBuildItemReference(rawResponse.recommendedBuild.boots, itemPool),
 	},
 	explanation: rawResponse.explanation,
