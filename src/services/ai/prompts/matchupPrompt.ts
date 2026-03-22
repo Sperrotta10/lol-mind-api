@@ -9,6 +9,7 @@ Reglas obligatorias:
 3) Si no hay datos suficientes, devuelve recomendaciones conservadoras y explicalo en lanePlan.
 4) No inventes nombres de items o runas fuera de CONTEXT_BLOCK.
 5) El idioma de salida es espanol tecnico claro.
+6) IMPORTANTE: Tu respuesta debe contener EXCLUSIVAMENTE los IDs de los items (ej. "3026") y los IDs o Keys de las runas (ej. 8010 o "Conqueror"), NUNCA los nombres. No inventes IDs que no existan en el CONTEXT_BLOCK.
 `;
 
 export const buildResponseSchema = () => ({
@@ -28,21 +29,54 @@ export const buildResponseSchema = () => ({
 		build: {
 			type: Type.OBJECT,
 			properties: {
-				startingItems: { type: Type.ARRAY, items: { type: Type.STRING } },
-				coreItems: { type: Type.ARRAY, items: { type: Type.STRING } },
-				situationalItems: { type: Type.ARRAY, items: { type: Type.STRING } },
-				boots: { type: Type.STRING },
+				startingItems: {
+					type: Type.ARRAY,
+					description: "Array de IDs exactos de items iniciales del CONTEXT_BLOCK. No usar nombres.",
+					items: { type: Type.STRING },
+				},
+				coreItems: {
+					type: Type.ARRAY,
+					description: "Array de IDs exactos de items core del CONTEXT_BLOCK. No usar nombres.",
+					items: { type: Type.STRING },
+				},
+				situationalItems: {
+					type: Type.ARRAY,
+					description: "Array de IDs exactos de items situacionales del CONTEXT_BLOCK. No usar nombres.",
+					items: { type: Type.STRING },
+				},
+				boots: {
+					type: Type.STRING,
+					description: "ID exacto de botas seleccionado del CONTEXT_BLOCK. No usar nombre.",
+				},
 			},
 			required: ["startingItems", "coreItems", "situationalItems", "boots"],
 		},
 		runes: {
 			type: Type.OBJECT,
 			properties: {
-				primaryTree: { type: Type.STRING },
-				primaryChoices: { type: Type.ARRAY, items: { type: Type.STRING } },
-				secondaryTree: { type: Type.STRING },
-				secondaryChoices: { type: Type.ARRAY, items: { type: Type.STRING } },
-				shards: { type: Type.ARRAY, items: { type: Type.STRING } },
+				primaryTree: {
+					type: Type.STRING,
+					description: "Nombre exacto del arbol primario de runas segun CONTEXT_BLOCK.",
+				},
+				primaryChoices: {
+					type: Type.ARRAY,
+					description: "Array de IDs numericos o Keys exactas de runas primarias desde CONTEXT_BLOCK. No usar nombres.",
+					items: { type: Type.STRING },
+				},
+				secondaryTree: {
+					type: Type.STRING,
+					description: "Nombre exacto del arbol secundario de runas segun CONTEXT_BLOCK.",
+				},
+				secondaryChoices: {
+					type: Type.ARRAY,
+					description: "Array de IDs numericos o Keys exactas de runas secundarias desde CONTEXT_BLOCK. No usar nombres.",
+					items: { type: Type.STRING },
+				},
+				shards: {
+					type: Type.ARRAY,
+					description: "Shards de runas usando IDs o valores exactos provistos por CONTEXT_BLOCK.",
+					items: { type: Type.STRING },
+				},
 			},
 			required: ["primaryTree", "primaryChoices", "secondaryTree", "secondaryChoices", "shards"],
 		},

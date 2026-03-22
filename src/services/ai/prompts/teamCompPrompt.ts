@@ -18,6 +18,7 @@ Reglas obligatorias:
 4) Recomienda build para myChampion orientada a compensar debilidades de myTeam o contrarrestar enemyTeam.
 5) No inventes items fuera de itemPool/bootPool.
 6) Responde en espanol tecnico claro.
+7) IMPORTANTE: Tu respuesta debe contener EXCLUSIVAMENTE los IDs de los items (ej. "3026") y los IDs o Keys de las runas cuando aplique (ej. 8010 o "Conqueror"), NUNCA los nombres. No inventes IDs que no existan en el CONTEXT_BLOCK.
 `;
 
 export const buildTeamCompResponseSchema = () => ({
@@ -36,9 +37,20 @@ export const buildTeamCompResponseSchema = () => ({
 		recommendedBuild: {
 			type: Type.OBJECT,
 			properties: {
-				coreItems: { type: Type.ARRAY, items: { type: Type.STRING } },
-				situationalItems: { type: Type.ARRAY, items: { type: Type.STRING } },
-				boots: { type: Type.STRING },
+				coreItems: {
+					type: Type.ARRAY,
+					description: "Array de IDs exactos de items core desde CONTEXT_BLOCK. No usar nombres.",
+					items: { type: Type.STRING },
+				},
+				situationalItems: {
+					type: Type.ARRAY,
+					description: "Array de IDs exactos de items situacionales desde CONTEXT_BLOCK. No usar nombres.",
+					items: { type: Type.STRING },
+				},
+				boots: {
+					type: Type.STRING,
+					description: "ID exacto de botas seleccionado desde CONTEXT_BLOCK. No usar nombre.",
+				},
 			},
 			required: ["coreItems", "situationalItems", "boots"],
 		},
