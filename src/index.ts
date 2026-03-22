@@ -41,7 +41,7 @@ const corsOptions: CorsOptions = {
 };
 
 app.disable("x-powered-by");
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 app.use((req, res, next) => {
 	const requestId = req.header("x-request-id") ?? randomUUID();
 	res.locals.requestId = requestId;
