@@ -65,7 +65,12 @@
       "hono": ">=4.12.18",
       "@hono/node-server": "1.19.13",
       "@prisma/dev>@hono/node-server": "1.19.13"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@google/genai",
+      "prisma",
+      "@prisma/client"
+    ]
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
