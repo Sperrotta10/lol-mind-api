@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: pnpm install --frozen-lockfile --only-built-dependencies-all && pnpm run build
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build
     startCommand: pnpm run start
     healthCheckPath: /health
     autoDeploy: true
@@ -17,8 +17,6 @@ services:
         sync: false
       - key: CRON_SECRET
         sync: false
-      - key: PNPM_ONLY_BUILT_DEPENDENCIES
-        value: "@google/genai,prisma,@prisma/client"
       - key: DATABASE_URL
         sync: false
       - key: DATABASE_SSL_REJECT_UNAUTHORIZED

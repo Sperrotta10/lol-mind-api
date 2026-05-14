@@ -69,11 +69,12 @@
     "onlyBuiltDependencies": [
       "@google/genai",
       "prisma",
-      "@prisma/client"
+      "@prisma/client",
+      "esbuild"
     ]
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
-  "packageManager": "pnpm@11.1.2"
+  "packageManager": "pnpm@9.15.4"
 }
