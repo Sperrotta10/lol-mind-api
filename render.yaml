@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: pnpm install --frozen-lockfile && pnpm run build
+    buildCommand: pnpm install --frozen-lockfile --only-built-dependencies-all && pnpm run build
     startCommand: pnpm run start
     healthCheckPath: /health
     autoDeploy: true
