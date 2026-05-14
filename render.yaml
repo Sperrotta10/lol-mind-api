@@ -4,8 +4,8 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: npm ci && npm run build
-    startCommand: npm run start
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build
+    startCommand: pnpm run start
     healthCheckPath: /health
     autoDeploy: true
     envVars:
